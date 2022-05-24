@@ -24,7 +24,12 @@ namespace ECommerce.Auth
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddSession();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireRoleAdministrator", policy => policy.RequireRole("Administrator")); //authz basado en roles
+                options.AddPolicy("Employee", policy => policy.RequireClaim("EmployeeCode")); //authz basado en directivas
+            });
+            //services.AddSession();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,7 +47,7 @@ namespace ECommerce.Auth
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseSession();
+            //app.UseSession();
 
             app.UseRouting();
 

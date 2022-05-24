@@ -27,25 +27,28 @@ namespace ECommerce.Auth.Controllers
         [HttpPost]
         public IActionResult Index(UsuarioModel model)
         {
-            string cn = _IConfiguration["ConnectionStrings:Development"];
-            if (!string.IsNullOrEmpty(cn))
-                return RedirectToAction("Home", "Error");
+            //string cn = _IConfiguration["ConnectionStrings:Development"];
+            //cn = "Data Source=IBLAPELIMC00703\\SQLEXPRESS;Initial Catalog=ECommerce;Integrated Security=True";
+            //if (!string.IsNullOrEmpty(cn))
+            //    return RedirectToAction("Home", "Error");
 
-            using (SqlConnection connection = new SqlConnection(cn))
-            {
+            //using (SqlConnection connection = new SqlConnection(cn))
+            //{
                 if (string.IsNullOrWhiteSpace(model.NombreUsuario) || string.IsNullOrWhiteSpace(model.Clave))
                 {
                     ModelState.AddModelError("", "El nombre de usuario o clave no deben estar vacíos.");
                 }
                 else
                 {
-                    connection.Open();
-                    SqlCommand command = new SqlCommand("DevolverUsuario", connection);
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@usuario", model.NombreUsuario);
-                    command.Parameters.AddWithValue("@contrasena", model.Clave);
-                    SqlDataReader reader = command.ExecuteReader();
-                    if (reader.Read())
+                    bool valido = UsuarioDAO.Instancia.Login(model);
+                    //connection.Open();
+                    //SqlCommand command = new SqlCommand("DevolverUsuario", connection);
+                    //command.CommandType = System.Data.CommandType.StoredProcedure;
+                    //command.Parameters.AddWithValue("@usuario", model.NombreUsuario);
+                    //command.Parameters.AddWithValue("@contrasena", model.Clave);
+                    //SqlDataReader reader = command.ExecuteReader();
+                    //if (reader.Read())
+                    if (valido)
                     {
                         HttpContext.Session.SetString(LoginName, model.NombreUsuario);
                         return RedirectToAction("Home", "Index");
@@ -55,7 +58,7 @@ namespace ECommerce.Auth.Controllers
                         ModelState.AddModelError("", "Datos ingresados no son válidos.");
                     }
                 }
-            }
+            //}
 
             return View(model);
             //return RedirectToAction(nameof(Index));
